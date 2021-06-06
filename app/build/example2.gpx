@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<gpx version="1.1" creator="Star GIS 7.0 - http://www.star.be/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<trk>
+  <name></name>
+  <cmt></cmt>
+  <desc></desc>
+  <trkseg>
+    <trkpt lat="43.753962" lon="5.892401">
+      <ele>305</ele>
+    </trkpt>
+    <trkpt lat="43.753962" lon="5.895395">
+      <ele>302</ele>
+    </trkpt>
+    <trkpt lat="43.753801" lon="5.897031">
+      <ele>303</ele>
+    </trkpt>
+    <trkpt lat="43.753718" lon="5.898733">
+      <ele>305</ele>
+    </trkpt>
+    <trkpt lat="43.753782" lon="5.899789">
+      <ele>306</ele>
+    </trkpt>
+    <trkpt lat="43.754015" lon="5.900608">
+      <ele>307</ele>
+    </trkpt>
+    <trkpt lat="43.754141" lon="5.901407">
+      <ele>307</ele>
+    </trkpt>
+    <trkpt lat="43.754205" lon="5.902191">
+      <ele>306</ele>
+    </trkpt>
+    <trkpt lat="43.754457" lon="5.903271">
+      <ele>305</ele>
+    </trkpt>
+    <trkpt lat="43.754481" lon="5.904176">
+      <ele>304</ele>
+    </trkpt>
+    <trkpt lat="43.754622" lon="5.905323">
+      <ele>303</ele>
+    </trkpt>
+    <trkpt lat="43.754473" lon="5.906038">
+      <ele>304</ele>
+    </trkpt>
+    <trkpt lat="43.754385" lon="5.907369">
+      <ele>305</ele>
+    </trkpt>
+    <trkpt lat="43.754349" lon="5.907899">
+      <ele>305</ele>
+    </trkpt>
+    <trkpt lat="43.754903" lon="5.907983">
+      <ele>307</ele>
+    </trkpt>
+    <trkpt lat="43.755276" lon="5.908093">
+      <ele>308</ele>
+    </trkpt>
+    <trkpt lat="43.756019" lon="5.908400">
+      <ele>313</ele>
+    </trkpt>
+    <trkpt lat="43.756361" lon="5.908644">
+      <ele>315</ele>
+    </trkpt>
+    <trkpt lat="43.756685" lon="5.908590">
+      <ele>318</ele>
+    </trkpt>
+    <trkpt lat="43.756495" lon="5.908096">
+      <ele>316</ele>
+    </trkpt>
+    <trkpt lat="43.756437" lon="5.907424">
+      <ele>315</ele>
+    </trkpt>
+    <trkpt lat="43.756425" lon="5.906965">
+      <ele>315</ele>
+    </trkpt>
+    <trkpt lat="43.756341" lon="5.906255">
+      <ele>316</ele>
+    </trkpt>
+    <trkpt lat="43.756416" lon="5.905319">
+      <ele>318</ele>
+    </trkpt>
+    <trkpt lat="43.756195" lon="5.904699">
+      <ele>316</ele>
+    </trkpt>
+    <trkpt lat="43.755952" lon="5.904176">
+      <ele>314</ele>
+    </trkpt>
+    <trkpt lat="43.755779" lon="5.903423">
+      <ele>314</ele>
+    </trkpt>
+    <trkpt lat="43.755508" lon="5.902131">
+      <ele>316</ele>
+    </trkpt>
+    <trkpt lat="43.755144" lon="5.901205">
+      <ele>316</ele>
+    </trkpt>
+    <trkpt lat="43.754649" lon="5.900432">
+      <ele>313</ele>
+    </trkpt>
+    <trkpt lat="43.754521" lon="5.899422">
+      <ele>314</ele>
+    </trkpt>
+    <trkpt lat="43.754576" lon="5.898547">
+      <ele>313</ele>
+    </trkpt>
+    <trkpt lat="43.754798" lon="5.897806">
+      <ele>315</ele>
+    </trkpt>
+    <trkpt lat="43.754974" lon="5.897099">
+      <ele>315</ele>
+    </trkpt>
+    <trkpt lat="43.754939" lon="5.896520">
+      <ele>312</ele>
+    </trkpt>
+    <trkpt lat="43.754639" lon="5.895833">
+      <ele>309</ele>
+    </trkpt>
+    <trkpt lat="43.754987" lon="5.894766">
+      <ele>309</ele>
+    </trkpt>
+    <trkpt lat="43.755375" lon="5.893627">
+      <ele>308</ele>
+    </trkpt>
+    <trkpt lat="43.755531" lon="5.893501">
+      <ele>310</ele>
+    </trkpt>
+    <trkpt lat="43.755692" lon="5.892694">
+      <ele>311</ele>
+    </trkpt>
+    <trkpt lat="43.755957" lon="5.891993">
+      <ele>310</ele>
+    </trkpt>
+    <trkpt lat="43.755876" lon="5.891456">
+      <ele>308</ele>
+    </trkpt>
+    <trkpt lat="43.755471" lon="5.891505">
+      <ele>309</ele>
+    </trkpt>
+    <trkpt lat="43.754966" lon="5.891597">
+      <ele>308</ele>
+    </trkpt>
+    <trkpt lat="43.754564" lon="5.891832">
+      <ele>308</ele>
+    </trkpt>
+    <trkpt lat="43.753994" lon="5.892254">
+      <ele>304</ele>
+    </trkpt>
+  </trkseg>
+</trk>
+</gpx>

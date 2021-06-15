@@ -2,14 +2,20 @@ var tpl = require("pug-loader!./tpl.pug");
 var L = require('leaflet');
 var LP = require('leaflet-providers');
 var LGPX = require('leaflet-gpx');
+var IGN = require('geoportal-extensions-leaflet');
+import Chart from 'chart.js/auto';
+
+// Display icons with toggle
+//
 
 module.exports = Marionette.View.extend({
 
   className: '',
-  id: 'map',
 
   events: {
   },
+
+  map: null,
 
   initialize: function() {
   },
@@ -18,13 +24,45 @@ module.exports = Marionette.View.extend({
 
     var that = this;
 
-    var map = L.map('map', {
+    var map = this.map = L.map('map', {
       center: [43.874, 5.401],
       zoom: 12
     });
 
     L.tileLayer.provider('CartoDB.Positron').addTo(map);
     
+    //this.renderPOI();
+    //this.renderGPX();
+    this.initGPS();
+  },
+
+  initGPS: function() {
+
+    var that = this;
+    this.map.locate({setView: true, maxZoom: 16});
+
+    this.map.on('locationfound', function(e) {
+
+      var radius = e.accuracy;
+      console.log(e);
+
+      L.marker(e.latlng)
+        .addTo(that.map)
+        .bindPopup("You are within " + radius + " meters from this point")
+        .openPopup();
+
+      L.circle(e.latlng, radius).addTo(that.map);
+    });
+
+    this.map.on('locationerror', function(err) {
+      console.log(err);
+    });
+  },
+
+  // Renders Points of interest on the map
+  renderPOI: function() {
+
+    var that = this;
     var icons = ['museum', 'biking'];
     var points = 25;
 
@@ -49,7 +87,7 @@ module.exports = Marionette.View.extend({
 
       marker.bindPopup('<p>Hello world!<br />This is a nice popup.</p>').openPopup();
 
-      marker.addTo(map);
+      marker.addTo(that.map);
     }
 
     // max animation duration is 2000ms
@@ -63,6 +101,12 @@ module.exports = Marionette.View.extend({
         $this.addClass('displayed');
       }, duration*index);
     })
+  },
+
+  // Renders a GPX file on the map
+  renderGPX: function() {
+
+    var that = this;
 
     var gpx = new L.GPX('/example.gpx', {
       async: true,
@@ -78,10 +122,86 @@ module.exports = Marionette.View.extend({
         lineCap: 'round'
       }
     }).on('loaded', function(e) {
-      map.fitBounds(e.target.getBounds());
-      console.log(gpx.get_distance()/1000);
-    }).addTo(map);
 
+      that.map.fitBounds(e.target.getBounds());
+      console.log(gpx.get_distance()/1000);
+
+      that.renderElevationGraph(gpx.get_elevation_data());
+
+    }).addTo(that.map);
+  },
+
+  // Renders GPX file elevation data
+  renderElevationGraph: function(data) {
+
+    var dots = [];
+    var labels = [];
+
+    var max = 200;
+    var skip = (data.length / max) <= 1 ? 1 : data.length / max;
+    var currentIndex = 0;
+
+    data.forEach(function(dot, index) {
+
+      if (index - currentIndex >= skip) {
+        currentIndex = index;
+        labels.push(dot[0].toFixed(2)+' Km');
+        dots.push(dot[1]);
+      }
+    });
+
+    var myChart = new Chart(this.$el.find('#elevation'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            radius: 0,
+            data: dots,
+            fill: true,
+            backgroundColor: '#efefef'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        hover: {
+          mode: 'index',
+          intersect: false,
+          animationDuration: 0
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+        },
+        scales: {
+          yAxis: {
+            ticks: {
+              autoSkip: true,
+              beginAtZero: true,
+              fontColor: '#979797',
+              fontSize: '15px',
+              padding: 12,
+              fontFamily: 'Montserrat',
+            },
+            gridLines: { 
+              color: "#EFF3F9",
+              zeroLineColor: "#EFF3F9"
+            }
+          },
+          x: {
+            display: false
+          }
+        } 
+      }
+    });
   },
   
   render: function() {

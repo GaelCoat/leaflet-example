@@ -30,28 +30,64 @@ module.exports = Marionette.View.extend({
     });
 
     L.tileLayer.provider('CartoDB.Positron').addTo(map);
+
+    L.Control.Location = L.Control.extend({
+      onAdd: function(map) {
+
+        var container = L.DomUtil.create('div', 'leaflet-bar');
+        var a = L.DomUtil.create('a', '', container);
+        var img = L.DomUtil.create('img', '', a);
+        img.src = '/img/location_search.svg';
+
+        container.addEventListener('click', function(e) {
+
+          that.map.setView(that.location.getLatLng());
+        })
+
+        return container;
+      },
+
+      onRemove: function(map) {
+      }
+    });
+
+    L.control.location = function(opts) {
+      return new L.Control.Location(opts);
+    }
+
+    L.control.location({ position: 'topleft' }).addTo(map);
     
     //this.renderPOI();
     //this.renderGPX();
     this.initGPS();
   },
 
+  // cancel automove && autozoom on drag
+  // add location button
   initGPS: function() {
 
     var that = this;
-    this.map.locate({setView: true, maxZoom: 16});
+
+    this.map.locate({watch: true});
 
     this.map.on('locationfound', function(e) {
 
-      var radius = e.accuracy;
-      console.log(e);
+      that.map.setView(e.latlng);
 
-      L.marker(e.latlng)
-        .addTo(that.map)
-        .bindPopup("You are within " + radius + " meters from this point")
-        .openPopup();
+      if (that.location) {
 
-      L.circle(e.latlng, radius).addTo(that.map);
+        return that.location.setLatLng(e.latlng);
+      }
+
+      var myIcon = L.icon({
+        iconUrl: `/img/location.svg`,
+        iconSize: [90, 138],
+      });
+
+      that.location = L.marker(e.latlng, {
+        icon: myIcon
+      })
+      .addTo(that.map)
     });
 
     this.map.on('locationerror', function(err) {

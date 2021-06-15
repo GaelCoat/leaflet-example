@@ -91,9 +91,13 @@ button {
     max-width: none; }
 
 #map {
-  top: calc(100% - 80vh);
-  height: 80vh;
+  top: 0;
+  height: 100vh;
   width: 100%; }
+  #map .leaflet-bar img {
+    vertical-align: middle;
+    width: 22px;
+    margin-top: -1px; }
 
 .wrap {
   width: 30vw; }

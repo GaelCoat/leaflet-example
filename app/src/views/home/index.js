@@ -2,7 +2,7 @@ var tpl = require("pug-loader!./tpl.pug");
 var L = require('leaflet');
 var LP = require('leaflet-providers');
 var LGPX = require('leaflet-gpx');
-var IGN = require('geoportal-extensions-leaflet');
+var LR = require('leaflet-marker-rotation');
 import Chart from 'chart.js/auto';
 
 // Display icons with toggle
@@ -13,9 +13,11 @@ module.exports = Marionette.View.extend({
   className: '',
 
   events: {
+    'click #start-hiking': 'initGPS'
   },
 
   map: null,
+  autoMove: true,
 
   initialize: function() {
   },
@@ -31,35 +33,11 @@ module.exports = Marionette.View.extend({
 
     L.tileLayer.provider('CartoDB.Positron').addTo(map);
 
-    L.Control.Location = L.Control.extend({
-      onAdd: function(map) {
-
-        var container = L.DomUtil.create('div', 'leaflet-bar');
-        var a = L.DomUtil.create('a', '', container);
-        var img = L.DomUtil.create('img', '', a);
-        img.src = '/img/location_search.svg';
-
-        container.addEventListener('click', function(e) {
-
-          that.map.setView(that.location.getLatLng());
-        })
-
-        return container;
-      },
-
-      onRemove: function(map) {
-      }
-    });
-
-    L.control.location = function(opts) {
-      return new L.Control.Location(opts);
-    }
-
-    L.control.location({ position: 'topleft' }).addTo(map);
+    
     
     //this.renderPOI();
-    //this.renderGPX();
-    this.initGPS();
+    this.renderGPX();
+    //this.initGPS();
   },
 
   // cancel automove && autozoom on drag
@@ -68,24 +46,57 @@ module.exports = Marionette.View.extend({
 
     var that = this;
 
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", function(event) {
+          // alpha: rotation around z-axis
+          var rotateDegrees = event.alpha;
+
+          that.location_orientation.setRotationAngle(rotateDegrees)
+      }, true);
+    }
+
+    this.createLocationControl();
+
+    this.map.dragging.enable();
+
+    this.map.on('drag', function(e) {
+
+      that.autoMove = false;
+    })
+
     this.map.locate({watch: true});
 
     this.map.on('locationfound', function(e) {
 
-      that.map.setView(e.latlng);
+      if (that.autoMove) that.map.setView(e.latlng);
 
       if (that.location) {
 
-        return that.location.setLatLng(e.latlng);
+        that.location_orientation.setLatLng(e.latlng);
+        that.location.setLatLng(e.latlng);
+        return;
       }
 
-      var myIcon = L.icon({
+      var OrientationIcon = L.icon({
+        iconUrl: `/img/location_orientation.svg`,
+        iconSize: [90,90],
+        iconAnchor: [45,67]
+      });
+
+      that.location_orientation = L.rotatedMarker(e.latlng, {
+        icon: OrientationIcon,
+        rotationAngle: 0,
+        rotationOrigin: 'center'
+      })
+      .addTo(that.map)
+
+      var LocationIcon = L.icon({
         iconUrl: `/img/location.svg`,
         iconSize: [90, 138],
       });
 
       that.location = L.marker(e.latlng, {
-        icon: myIcon
+        icon: LocationIcon
       })
       .addTo(that.map)
     });
@@ -160,9 +171,8 @@ module.exports = Marionette.View.extend({
     }).on('loaded', function(e) {
 
       that.map.fitBounds(e.target.getBounds());
-      console.log(gpx.get_distance()/1000);
 
-      that.renderElevationGraph(gpx.get_elevation_data());
+      //that.renderElevationGraph(gpx.get_elevation_data());
 
     }).addTo(that.map);
   },
@@ -238,6 +248,36 @@ module.exports = Marionette.View.extend({
         } 
       }
     });
+  },
+
+  createLocationControl: function() {
+
+    var that = this;
+
+    // Location button
+    L.Control.Location = L.Control.extend({
+      onAdd: function(map) {
+
+        var container = L.DomUtil.create('div', 'leaflet-bar');
+        var a = L.DomUtil.create('a', '', container);
+        var img = L.DomUtil.create('img', '', a);
+        img.src = '/img/location_search.svg';
+
+        container.addEventListener('click', function(e) {
+
+          that.map.setView(that.location.getLatLng());
+          that.autoMove = true;
+        });
+
+        return container;
+      },
+
+      onRemove: function(map) {
+      }
+    });
+
+    L.control.location = function(opts) { return new L.Control.Location(opts); }
+    L.control.location({ position: 'topleft' }).addTo(this.map);
   },
   
   render: function() {

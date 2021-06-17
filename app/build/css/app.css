@@ -99,6 +99,28 @@ button {
     width: 22px;
     margin-top: -1px; }
 
+#start-hiking {
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  right: 0;
+  bottom: 5vw;
+  width: 90vw;
+  margin: auto;
+  max-width: 500px;
+  background-color: #66A3FF;
+  padding: 16px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 16px;
+  border: 0px;
+  border-radius: 4px;
+  box-shadow: 0px 15px 25px 4px rgba(102, 163, 255, 0.34);
+  -moz-box-shadow: 0px 15px 25px 4px rgba(102, 163, 255, 0.34);
+  -o-box-shadow: 0px 15px 25px 4px rgba(102, 163, 255, 0.34);
+  -ms-box-shadow: 0px 15px 25px 4px rgba(102, 163, 255, 0.34);
+  -webkit-box-shadow: 0px 15px 25px 4px rgba(102, 163, 255, 0.34); }
+
 .wrap {
   width: 30vw; }
 

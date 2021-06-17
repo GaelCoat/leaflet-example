@@ -134,6 +134,25 @@ button {
   }
 }
 
+#start-hiking {
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  right: 0;
+  bottom: 5vw;
+  width: 90vw;
+  margin: auto;
+  max-width: 500px;
+  background-color: $blue;
+  padding: 16px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 16px;
+  border: 0px;
+  border-radius: 4px;
+  @include shadow(0px 15px 25px 4px transparentize($blue, .66));
+}
+
 .wrap {
   width: 30vw;
 }

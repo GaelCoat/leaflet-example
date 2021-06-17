@@ -50,8 +50,8 @@ module.exports = Marionette.View.extend({
       window.addEventListener("deviceorientation", function(event) {
           // alpha: rotation around z-axis
           var rotateDegrees = event.alpha;
-
-          that.location_orientation.setRotationAngle(rotateDegrees)
+          console.log(rotateDegrees);
+          that.location_orientation.setRotationAngle(-rotateDegrees)
       }, true);
     }
 

@@ -157,4 +157,8 @@ button {
   width: 30vw;
 }
 
+.leaflet-routing-container {
+  display: none;
+}
+
 @import 'leaflet';

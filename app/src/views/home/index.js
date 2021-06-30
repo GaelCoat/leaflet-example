@@ -3,7 +3,11 @@ var L = require('leaflet');
 var LP = require('leaflet-providers');
 var LGPX = require('leaflet-gpx');
 var LR = require('leaflet-marker-rotation');
+var Routing = require('leaflet-routing-machine');
+var Utils = require('leaflet-geometryutil');
+import nearestPoint from '@turf/nearest-point';
 import Chart from 'chart.js/auto';
+var leafletKnn = require('leaflet-knn');
 
 // Display icons with toggle
 //
@@ -19,6 +23,9 @@ module.exports = Marionette.View.extend({
   map: null,
   autoMove: true,
 
+  GPS_init: false,
+  first: true,
+
   initialize: function() {
   },
 
@@ -32,7 +39,6 @@ module.exports = Marionette.View.extend({
     });
 
     L.tileLayer.provider('CartoDB.Positron').addTo(map);
-
     
     
     //this.renderPOI();
@@ -46,11 +52,17 @@ module.exports = Marionette.View.extend({
 
     var that = this;
 
+    this.$el.find('#start-hiking').hide();
+
+    if (this.GPS_init) return;
+    this.GPS_init = true;
+
+
     if (window.DeviceOrientationEvent) {
+
       window.addEventListener("deviceorientation", function(event) {
           // alpha: rotation around z-axis
           var rotateDegrees = event.alpha;
-          console.log(rotateDegrees);
           that.location_orientation.setRotationAngle(-rotateDegrees)
       }, true);
     }
@@ -67,6 +79,8 @@ module.exports = Marionette.View.extend({
     this.map.locate({watch: true});
 
     this.map.on('locationfound', function(e) {
+
+      that.traceRoute(e.latlng);
 
       if (that.autoMove) that.map.setView(e.latlng);
 
@@ -96,15 +110,119 @@ module.exports = Marionette.View.extend({
       });
 
       that.location = L.marker(e.latlng, {
-        icon: LocationIcon
+        icon: LocationIcon,
+        draggable: false
       })
       .addTo(that.map)
+
+      // tests
+      /*that.location.on('dragend', function(a) {
+        that.traceRoute(a.target._latlng);
+      })*/
     });
 
     this.map.on('locationerror', function(err) {
       console.log(err);
     });
   },
+
+  updateRoute: function(latlng) {
+
+    var path = _.find(this.route._line._layers, function(l) {
+
+      return l.options.color === '#66A3FF';
+    }); 
+
+    if (this.first) {
+      path._latlngs.unshift(latlng);
+      this.first = false;
+    } else {
+
+      path._latlngs[0] = latlng;
+    }
+
+    path.redraw();
+
+    var gj = L.geoJson(path.toGeoJSON());
+    var nearest = leafletKnn(gj).nearest(latlng, 3, 50);
+
+    nearest.forEach(function(p) {
+
+      p.index = _.findIndex(path._latlngs, function(c) {
+
+        return c.lat == p.lat && c.lng == p.lon;
+      });
+
+    });
+
+    if (nearest.length <= 1) {
+
+      this.route.spliceWaypoints(0, 1, latlng);
+      return this.route.route();
+    }
+
+    if (nearest[1].index > 1) {
+
+      path._latlngs.splice(1, nearest[1].index - 1);
+      path.redraw();
+    } else {
+
+      // check distance, if close, replace [1]
+      var distance = this.calculateDistance(latlng, nearest[1]) * 1000; // meters
+      if (distance <= 5) {
+        path._latlngs.splice(1, 1);
+        path.redraw();
+      }
+    }
+    
+
+  },
+
+  calculateDistance: function(a, b) {
+
+    var lat1 = a.lat;
+    var lng1 = a.lng;
+    var lat2 = b.lat || b.lat;
+    var lng2 = b.lng || b.lon;
+
+    var R = 6371; // km
+    var dLat = (lat2-lat1) * Math.PI / 180;
+    var dLng = (lng2-lng1) * Math.PI / 180;
+    var lat1 = lat1 * Math.PI / 180;
+    var lat2 = lat2 * Math.PI / 180;
+
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLng/2) * Math.sin(dLng/2) * Math.cos(lat1) * Math.cos(lat2); 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c;
+  },
+
+  traceRoute: function(latlng) {
+
+    var that = this;
+
+    if (this.route) return this.updateRoute(latlng);
+
+    this.route = L.Routing.control({
+      router: L.Routing.mapbox(
+        'pk.eyJ1IjoicnJycnJyb3VnZSIsImEiOiJja3FjbXp4eXIwaGlqMndsZHNzeG11bGNwIn0.JaU8dNsfFbJLRcu7nUBOmQ',
+        {
+          profile: 'mapbox/walking',
+        }
+      ),
+      waypoints: [
+        latlng,
+        this.starting_point
+      ],
+      draggableWaypoints: false,
+      addWaypoints: false,
+      createMarker: function() { return false },
+      lineOptions: {
+        styles: [{color: '#66A3FF', opacity: 0.75, weight: 3}],
+        missingRouteStyles: [{color: '#000000', opacity: 0, weight: 3}]
+      }
+    }).addTo(this.map);
+  },
+
 
   // Renders Points of interest on the map
   renderPOI: function() {
@@ -168,8 +286,11 @@ module.exports = Marionette.View.extend({
         weight: 3,
         lineCap: 'round'
       }
-    }).on('loaded', function(e) {
-
+    })
+    .on('addpoint', function(e) {
+      if (e.point_type === 'start') that.starting_point = L.latLng(e.point._latlng.lat, e.point._latlng.lng);
+    })
+    .on('loaded', function(e) {
       that.map.fitBounds(e.target.getBounds());
 
       //that.renderElevationGraph(gpx.get_elevation_data());

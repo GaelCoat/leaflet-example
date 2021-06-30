@@ -124,6 +124,9 @@ button {
 .wrap {
   width: 30vw; }
 
+.leaflet-routing-container {
+  display: none; }
+
 /* required styles */
 .animated-icon {
   transition: .33s;

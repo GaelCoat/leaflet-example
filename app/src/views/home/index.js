@@ -203,12 +203,6 @@ module.exports = Marionette.View.extend({
     if (this.route) return this.updateRoute(latlng);
 
     this.route = L.Routing.control({
-      router: L.Routing.mapbox(
-        'pk.eyJ1IjoicnJycnJyb3VnZSIsImEiOiJja3FjbXp4eXIwaGlqMndsZHNzeG11bGNwIn0.JaU8dNsfFbJLRcu7nUBOmQ',
-        {
-          profile: 'mapbox/walking',
-        }
-      ),
       waypoints: [
         latlng,
         this.starting_point
@@ -221,6 +215,10 @@ module.exports = Marionette.View.extend({
         missingRouteStyles: [{color: '#000000', opacity: 0, weight: 3}]
       }
     }).addTo(this.map);
+
+    this.route.on('routingerror', function(err) {
+      console.log(err);
+    })
   },
 
 

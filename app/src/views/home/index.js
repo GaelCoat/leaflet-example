@@ -230,6 +230,7 @@ module.exports = Marionette.View.extend({
         latlng,
         this.starting_point
       ],
+      router: L.Routing.mapbox('pk.eyJ1IjoicnJycnJyb3VnZSIsImEiOiJja3FjbXp4eXIwaGlqMndsZHNzeG11bGNwIn0.JaU8dNsfFbJLRcu7nUBOmQ'),
       draggableWaypoints: false,
       addWaypoints: false,
       createMarker: function() { return false },

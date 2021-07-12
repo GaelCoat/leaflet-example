@@ -25,6 +25,7 @@ module.exports = Marionette.View.extend({
 
   GPS_init: false,
   first: true,
+  calcRange: 50,
 
   initialize: function() {
   },
@@ -128,6 +129,15 @@ module.exports = Marionette.View.extend({
 
   updateRoute: function(latlng) {
 
+    if (!this.route._line) return;
+
+    var distance_to_start = this.calculateDistance(latlng, this.starting_point) * 1000; // meters
+    if (distance_to_start <= this.calcRange) {
+      this.route.remove();
+      this.route = false;
+      return;
+    }
+
     var path = _.find(this.route._line._layers, function(l) {
 
       return l.options.color === '#66A3FF';
@@ -174,8 +184,6 @@ module.exports = Marionette.View.extend({
         path.redraw();
       }
     }
-    
-
   },
 
   calculateDistance: function(a, b) {
@@ -200,6 +208,8 @@ module.exports = Marionette.View.extend({
 
     var that = this;
 
+    var distance_to_start = this.calculateDistance(latlng, this.starting_point) * 1000; // meters
+    if (distance_to_start <= this.calcRange) return;
     if (this.route) return this.updateRoute(latlng);
 
     this.route = L.Routing.control({
@@ -216,6 +226,9 @@ module.exports = Marionette.View.extend({
       }
     }).addTo(this.map);
 
+    this.route.on('routesfound', function(e) {
+      console.log(e);
+    })
     this.route.on('routingerror', function(err) {
       console.log(err);
     })

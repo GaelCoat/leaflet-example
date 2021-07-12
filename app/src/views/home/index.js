@@ -127,17 +127,27 @@ module.exports = Marionette.View.extend({
     });
   },
 
+  isNearGPX: function(latlng) {
+
+    var gj = L.geoJson(this.gpx_path.toGeoJSON());
+    var nearest = leafletKnn(gj).nearest(latlng, 1, 25); // 25 meters
+    if (nearest.length > 0) return true;
+    return false;
+  },
+
   updateRoute: function(latlng) {
 
+    // Route is not yet found, we wait
     if (!this.route._line) return;
 
-    var distance_to_start = this.calculateDistance(latlng, this.starting_point) * 1000; // meters
-    if (distance_to_start <= this.calcRange) {
+    // We are near the GPX, we don't calculate any route
+    if (this.isNearGPX(latlng)) {
       this.route.remove();
       this.route = false;
       return;
     }
 
+    // Finding the correct path
     var path = _.find(this.route._line._layers, function(l) {
 
       return l.options.color === '#66A3FF';
@@ -165,6 +175,7 @@ module.exports = Marionette.View.extend({
 
     });
 
+    // We are too far from the route, we recalculate
     if (nearest.length <= 1) {
 
       this.route.spliceWaypoints(0, 1, latlng);
@@ -208,8 +219,10 @@ module.exports = Marionette.View.extend({
 
     var that = this;
 
-    var distance_to_start = this.calculateDistance(latlng, this.starting_point) * 1000; // meters
-    if (distance_to_start <= this.calcRange) return;
+    // We are near the GPX, we don't calculate any route
+    if (this.isNearGPX(latlng)) return;
+
+    // Route is already calculated, we update the line
     if (this.route) return this.updateRoute(latlng);
 
     this.route = L.Routing.control({
@@ -227,10 +240,10 @@ module.exports = Marionette.View.extend({
     }).addTo(this.map);
 
     this.route.on('routesfound', function(e) {
-      console.log(e);
+      console.log('Route found', e);
     })
     this.route.on('routingerror', function(err) {
-      console.log(err);
+      console.log('Routing error', err);
     })
   },
 
@@ -302,6 +315,12 @@ module.exports = Marionette.View.extend({
       if (e.point_type === 'start') that.starting_point = L.latLng(e.point._latlng.lat, e.point._latlng.lng);
     })
     .on('loaded', function(e) {
+
+      that.gpx_path = _.find(e.layers._layers, function(l) {
+
+        return l.options.color === "#ffbdd0";
+      }); 
+
       that.map.fitBounds(e.target.getBounds());
 
       //that.renderElevationGraph(gpx.get_elevation_data());
